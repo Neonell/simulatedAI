@@ -14,7 +14,7 @@ import com.tinkerpop.gremlin.Tokens;
 
 public class GraphBuilder {
 	private static final String BACKEND = "berkeleyje";
-	private static final String DIRECTORY = "D:/AI/database";
+	private static final String DIRECTORY = "../database";
 
 	public TitanGraph graph;
 	private TitanFactory.Builder config;
@@ -27,9 +27,6 @@ public class GraphBuilder {
 		config = TitanFactory.build();
 		config.set("storage.backend", BACKEND);
 		config.set("storage.directory", DIRECTORY);
-		// config.set("storage.hostname", HOSTNAME);
-		// config.set("storage.batch-loading", true);
-		// config.set("storage.cassandra.keyspace", "fnell");
 		graph = config.open();
 	}
 

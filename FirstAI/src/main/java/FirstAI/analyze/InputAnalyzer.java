@@ -8,13 +8,26 @@ import FirstAI.FirstAI.App;
 import FirstAI.FirstAI.TrainingCenter;
 import FirstAI.graph.GraphBuilder;
 
+/**
+ * Analyze the input of the "human" and compute them with know process or with the AI brain
+ * @author fnell
+ *
+ */
 public class InputAnalyzer {
 	private GraphBuilder graphBuilder;
 
+	/**
+	 * Constructor, make the connection between the AI process and his brain
+	 */
 	public InputAnalyzer() {
 		graphBuilder = new GraphBuilder();
 	}
 
+	/**
+	 * The main entry, the input analyzer of the AI
+	 * @param input
+	 * @return
+	 */
 	public String compute(String input) {
 		String answer = null;
 		//if we ask a question
@@ -199,6 +212,12 @@ public class InputAnalyzer {
 		}
 	}
 
+	/**
+	 * dummy training conversation method, used by the training Center
+	 * 
+	 * @param input
+	 * @return
+	 */
 	public String training(String input) {
 		// TODO Auto-generated method stub
 		System.out.println("Tell me what to answer to this?");

@@ -34,3 +34,12 @@ The next steps that I've in mind are the next one:
 And of course improve the existing functionality with better parsing, granularity, ...
 
 So if you want to contribute you are welcome :)
+
+Technology used:
+java, maven, titan
+
+How to import project into eclipse:
+go to project directory and type: mvn eclipse:eclipse
+
+
+PS: I'm brand new to github so be nice with me

@@ -4,6 +4,14 @@ import java.util.Scanner;
 
 import FirstAI.analyze.InputAnalyzer;
 
+/**
+ * This class allow us to train the conversation with the AI for non question sentences
+ * The idea is to be able to train the AI just by talking with her - this is pure training without thinking
+ * It's like learning a vocabulary at school.
+ * 
+ * @author fnell
+ *
+ */
 public class TrainingCenter {
 	public static Scanner reader;
 	public static void main(String[] args) {	
