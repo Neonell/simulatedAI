@@ -1,8 +1,16 @@
 package FirstAI.analyze;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import FirstAI.FirstAI.App;
 import FirstAI.FirstAI.TrainingCenter;
@@ -31,7 +39,7 @@ public class InputAnalyzer {
 	public String compute(String input) {
 		String answer = null;
 		//if we ask a question
-		if (input.endsWith("?")) {
+		if (AnalyzerTools.identifyQuestion(input)) {
 			//we try to identify if it's a calculation
 			answer = computeProcess(input);
 			//if not (return null) we try to identify if it's a search
@@ -69,7 +77,7 @@ public class InputAnalyzer {
 			if (answer != null) {
 				System.out.println("Is this answer correct? " + answer);
 				String confirmation = App.reader.nextLine();
-				if (confirmation.equalsIgnoreCase("yes")) {
+				if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
 					graphBuilder.learnNewQuestion(input, answer);
 				} else {
 					System.out.println("Then what is the correct answer?");
@@ -85,7 +93,7 @@ public class InputAnalyzer {
 				String outputToLearn = App.reader.nextLine();
 				if (outputToLearn.equalsIgnoreCase("no")) {
 					return "too bad I won't learn today";
-				} else if (outputToLearn.equalsIgnoreCase("yes")) {
+				} else if (AnalyzerTools.checkPositiveAnswer(outputToLearn)) {
 					outputToLearn = learningProcess();
 					if (outputToLearn != null) {
 						graphBuilder.learn(input, outputToLearn);
@@ -108,13 +116,13 @@ public class InputAnalyzer {
 	 */
 	private String computeProcess(String sentence) {
 		String result = null;
-		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add")) {
+		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add") || sentence.contains("+")) {
 			result = doCalculation(sentence, 0);
-		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply")) {
+		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply") || sentence.contains("*")) {
 			result = doCalculation(sentence, 1);
-		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide")) {
+		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide") || sentence.contains("/")) {
 			result = doCalculation(sentence, 2);
-		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract")) {
+		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract") || sentence.contains("-")) {
 			result = doCalculation(sentence, 3);
 		}
 
@@ -190,21 +198,63 @@ public class InputAnalyzer {
 	 * @return
 	 */
 	private String search(String sentence) {
+		String result = null;
+		if(sentence.contains("search")){
+			int index = sentence.indexOf("search");
+			String search = sentence.substring(index+5);
+			result = googleSearch(search);
+		}
+		return result;
+	}
+	
+	private String googleSearch(String search){
+		String google = "http://www.google.com/search?q=";
+		String charset = "UTF-8";
+		String userAgent = "ExampleBot 1.0 (+http://example.com/bot)"; // Change this to your company's name and bot homepage!
+		String response = "";
+		Elements links;
+		try {
+			links = Jsoup.connect(google + URLEncoder.encode(search, charset)).userAgent(userAgent).get().select(".g>.r>a");
+		
 
-		return null;
+		for (Element link : links) {
+		    String title = link.text();
+		    String url = link.absUrl("href"); // Google returns URLs in format "http://www.google.com/url?q=<url>&sa=U&ei=<someKey>".
+		    url = URLDecoder.decode(url.substring(url.indexOf('=') + 1, url.indexOf('&')), "UTF-8");
+
+		    if (!url.startsWith("http")) {
+		        continue; // Ads/news/etc.
+		    }
+
+		    System.out.println("Title: " + title);
+		    System.out.println("URL: " + url);
+		    System.out.println("Does it answer your question? ");
+		    String confirmation = App.reader.nextLine();
+		    if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
+		    	break;
+		    }
+		}
+		
+		} catch (UnsupportedEncodingException e) {
+			response = "sorry I didn't find anything relevant about this subject";
+		} catch (IOException e) {
+			response = "sorry I didn't find anything relevant about this subject";
+		}
+		
+		return response;
 	}
 
 	private String learningProcess() {
 		System.out.println("Is yes the answer?");
 		String confirmation = App.reader.nextLine();
-		if (confirmation.equalsIgnoreCase("yes")) {
+		if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
 			return "yes";
 		} else {
 			System.out.println("Then tell me what I need to learn please");
 			String outputToLearn = App.reader.nextLine();
 			if (outputToLearn.equalsIgnoreCase("no")) {
 				return null;
-			} else if (outputToLearn.equalsIgnoreCase("yes")) {
+			} else if (AnalyzerTools.checkPositiveAnswer(outputToLearn)) {
 				return learningProcess();
 			} else {
 				return outputToLearn;
@@ -224,7 +274,7 @@ public class InputAnalyzer {
 		String outputToLearn = TrainingCenter.reader.nextLine();
 		if (outputToLearn.equalsIgnoreCase("no")) {
 			return "Too bad I won't learn like this";
-		} else if (outputToLearn.equalsIgnoreCase("yes")) {
+		} else if (AnalyzerTools.checkPositiveAnswer(outputToLearn)) {
 			return training(input);
 		} else {
 			graphBuilder.learn(input, outputToLearn);
