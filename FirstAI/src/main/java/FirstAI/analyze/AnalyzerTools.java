@@ -33,9 +33,12 @@ public class AnalyzerTools {
 	public static ArrayList<String> deleteUnusefullWords(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			String word = words.get(i);
-			if (word.equalsIgnoreCase("how") || word.equalsIgnoreCase("to") || word.equalsIgnoreCase("a") || word.equalsIgnoreCase("an")) {
-				words.remove(i);
-				i--;
+			for(String wordToTest: AnalyzerDictionary.searchWordToRemove){
+				if (word.equalsIgnoreCase(wordToTest)) {
+					words.remove(i);
+					i--;
+					break;
+				}
 			}
 		}
 		return words;
@@ -54,7 +57,7 @@ public class AnalyzerTools {
 		return wordList;
 	}
 
-	public static String deleteTag(String input) {
+	public static String deleteBeginEndTag(String input) {
 		if (input.startsWith("<")) {
 			boolean more = true;
 			while (more) {
@@ -85,5 +88,22 @@ public class AnalyzerTools {
 		}
 		return input;
 	}
-
+	
+	public static String deleteTag(String input) {
+		while(input.contains("<")){
+		
+			//if no end tags we leave
+			if(!input.contains(">")){
+				break;
+			}
+			if(input.indexOf("<") > input.indexOf(">")){
+				break;
+			}
+			String strToRemove = input.substring(input.indexOf("<"), input.indexOf(">") + 1);
+			input = input.replace(strToRemove, "");
+			
+		}
+		return input;
+	}
+	
 }

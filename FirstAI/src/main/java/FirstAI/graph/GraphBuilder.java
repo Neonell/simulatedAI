@@ -58,12 +58,19 @@ public class GraphBuilder {
 		Vertex newInput;
 		Vertex newAnswer;
 
+		
 		newInput = graph.addVertex(null);
 		newInput.setProperty("input", input.toLowerCase());
-
-		newAnswer = graph.addVertex(null);
-		newAnswer.setProperty("output", output);
-
+		
+		GremlinPipeline pipe = new GremlinPipeline();
+		pipe.start(graph.getVertices("output", output.toLowerCase()));
+		if (pipe.hasNext()) {
+			newAnswer = (Vertex) pipe.next();
+		}
+		else{
+			newAnswer = graph.addVertex(null);
+			newAnswer.setProperty("output", output);
+		}
 		Edge connection = newInput.addEdge("answer", newAnswer);
 
 		graph.commit();

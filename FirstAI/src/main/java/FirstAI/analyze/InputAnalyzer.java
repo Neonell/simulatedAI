@@ -127,16 +127,16 @@ public class InputAnalyzer {
 	 */
 	private String computeProcess(String sentence) {
 		String result = null;
-		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add")
+		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add")|| sentence.contains("added")
 				|| sentence.contains("+")) {
 			result = doCalculation(sentence, 0);
-		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply")
+		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply") || sentence.contains("multiplied")
 				|| sentence.contains("*")) {
 			result = doCalculation(sentence, 1);
-		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide")
+		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide")|| sentence.contains("divided")
 				|| sentence.contains("/")) {
 			result = doCalculation(sentence, 2);
-		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract")
+		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract")|| sentence.contains("substracted")
 				|| sentence.contains("-")) {
 			result = doCalculation(sentence, 3);
 		}

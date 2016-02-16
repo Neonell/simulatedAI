@@ -30,6 +30,10 @@ public class GoogleAnalyzer {
 			int index = sentence.indexOf("search");
 			String search = sentence.substring(index + 6);
 			result = googleSearch(search);
+		} else if (sentence.contains("find")) {
+			int index = sentence.indexOf("find");
+			String search = sentence.substring(index + 6);
+			result = googleSearch(search);
 		}
 		return result;
 	}
@@ -69,6 +73,7 @@ public class GoogleAnalyzer {
 																		// homepage!
 		String response = "";
 		Elements links;
+
 		try {
 			links = Jsoup.connect(google + URLEncoder.encode(search, charset)).userAgent(userAgent).get()
 					.select(".g>.r>a");
@@ -119,7 +124,7 @@ public class GoogleAnalyzer {
 		try {
 			links = Jsoup.connect(google + URLEncoder.encode(search, charset)).userAgent(userAgent).get()
 					.select(".g>.r>a");
-
+			Boolean answered = false;
 			for (Element link : links) {
 				String title = link.text();
 				String urlString = link.absUrl("href"); // Google returns URLs
@@ -146,13 +151,18 @@ public class GoogleAnalyzer {
 						if (answer != null) {
 							answer = AnalyzerTools.deleteTag(answer);
 							System.out.println(answer);
+							answered = true;
 						}
 					}
 				}
-				System.out.println("Does it answer your question? ");
-				String confirmation = App.reader.nextLine();
-				if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
-					break;
+				if (answered) {
+					System.out.println("Does it answer your question? ");
+					String confirmation = App.reader.nextLine();
+					if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
+						break;
+					} else {
+						answered = false;
+					}
 				}
 			}
 		} catch (UnsupportedEncodingException e) {
@@ -165,6 +175,11 @@ public class GoogleAnalyzer {
 	}
 
 	static String computeContent(String inputLine) {
+		//if the line contains mostly a link it doesn't interest us
+		if(identifyLinks(inputLine)){
+			return null;
+		}
+		
 		if (inputLine.contains("<li>") && inputLine.contains("</li>")) {
 			if (inputLine.indexOf("<li>") < inputLine.indexOf("</li>")) {
 				return inputLine.substring(inputLine.indexOf("<li>"), inputLine.indexOf("</li>"));
@@ -186,7 +201,7 @@ public class GoogleAnalyzer {
 		int counter = 0;
 		for (String keyword : keywords) {
 
-			if (inputLine.contains(keyword)) {
+			if (inputLine.contains(" " + keyword) || inputLine.contains(keyword + " ")) {
 				counter++;
 			}
 		}
@@ -195,5 +210,20 @@ public class GoogleAnalyzer {
 		} else {
 			return null;
 		}
+	}
+
+	static boolean identifyLinks(String inputLine) {
+		if (inputLine.contains("<a>") && inputLine.contains("</a>")) {
+			int sizeRef = inputLine.indexOf("</a>") - inputLine.indexOf("<a>");
+			if (sizeRef >= (inputLine.length() / 2)) {
+				return true;
+			} else {
+				return false;
+			}
+
+		} else {
+			return false;
+		}
+
 	}
 }
