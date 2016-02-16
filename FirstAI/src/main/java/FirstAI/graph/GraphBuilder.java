@@ -32,7 +32,7 @@ public class GraphBuilder {
 
 	public String searchInput(String input) {
 		GremlinPipeline pipe = new GremlinPipeline();
-		pipe.start(graph.getVertices("input", input));
+		pipe.start(graph.getVertices("input", input.toLowerCase()));
 		if (pipe.hasNext()) {
 			Vertex v = (Vertex) pipe.next();
 			currentConversation = v;
@@ -44,7 +44,7 @@ public class GraphBuilder {
 
 	public String searchPartialInput(String input) {
 		GremlinPipeline pipe = new GremlinPipeline();
-		pipe.start(graph.getVertices()).has("input", Text.REGEX, ".*" + input + ".*");
+		pipe.start(graph.getVertices()).has("input", Text.REGEX, ".*" + input.toLowerCase() + ".*");
 		if (pipe.hasNext()) {
 			Vertex v = (Vertex) pipe.next();
 			currentConversation = v;
@@ -59,7 +59,7 @@ public class GraphBuilder {
 		Vertex newAnswer;
 
 		newInput = graph.addVertex(null);
-		newInput.setProperty("input", input);
+		newInput.setProperty("input", input.toLowerCase());
 
 		newAnswer = graph.addVertex(null);
 		newAnswer.setProperty("output", output);
@@ -74,14 +74,14 @@ public class GraphBuilder {
 		Vertex oldAnswer = null;
 
 		GremlinPipeline pipe = new GremlinPipeline();
-		pipe.start(graph.getVertices("output", answer));
+		pipe.start(graph.getVertices("output", answer.toLowerCase()));
 		if (pipe.hasNext()) {
 			oldAnswer = (Vertex) pipe.next();
 		}
 
 		if (oldAnswer != null) {
 			newInput = graph.addVertex(null);
-			newInput.setProperty("input", input);
+			newInput.setProperty("input", input.toLowerCase());
 			Edge connection = newInput.addEdge("answer", oldAnswer);
 
 			graph.commit();

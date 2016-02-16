@@ -1,7 +1,11 @@
 package FirstAI.analyze;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -17,7 +21,9 @@ import FirstAI.FirstAI.TrainingCenter;
 import FirstAI.graph.GraphBuilder;
 
 /**
- * Analyze the input of the "human" and compute them with know process or with the AI brain
+ * Analyze the input of the "human" and compute them with know process or with
+ * the AI brain
+ * 
  * @author fnell
  *
  */
@@ -33,21 +39,26 @@ public class InputAnalyzer {
 
 	/**
 	 * The main entry, the input analyzer of the AI
+	 * 
 	 * @param input
 	 * @return
 	 */
 	public String compute(String input) {
 		String answer = null;
-		//if we ask a question
+		// if we ask a question
 		if (AnalyzerTools.identifyQuestion(input)) {
-			//we try to identify if it's a calculation
+			// we try to identify if it's a calculation
 			answer = computeProcess(input);
-			//if not (return null) we try to identify if it's a search
-			if(answer == null){
-				answer = search(input);
+			// if not (return null) we try to identify if it's a search
+			if (answer == null) {
+				answer = GoogleAnalyzer.search(input);
 			}
-			//otherwise we compute the question in our neuronal database and try to learn new one if unknown
-			if(answer == null){
+			if (answer == null) {
+				answer = GoogleAnalyzer.question(input);
+			}
+			// otherwise we compute the question in our neuronal database and
+			// try to learn new one if unknown
+			if (answer == null) {
 				answer = computeQuestion(input);
 			}
 			return answer;
@@ -116,13 +127,17 @@ public class InputAnalyzer {
 	 */
 	private String computeProcess(String sentence) {
 		String result = null;
-		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add") || sentence.contains("+")) {
+		if (sentence.contains("calculate") && sentence.contains("+") || sentence.contains("add")
+				|| sentence.contains("+")) {
 			result = doCalculation(sentence, 0);
-		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply") || sentence.contains("*")) {
+		} else if (sentence.contains("calculate") && sentence.contains("*") || sentence.contains("multiply")
+				|| sentence.contains("*")) {
 			result = doCalculation(sentence, 1);
-		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide") || sentence.contains("/")) {
+		} else if (sentence.contains("calculate") && sentence.contains("/") || sentence.contains("divide")
+				|| sentence.contains("/")) {
 			result = doCalculation(sentence, 2);
-		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract") || sentence.contains("-")) {
+		} else if (sentence.contains("calculate") && sentence.contains("-") || sentence.contains("substract")
+				|| sentence.contains("-")) {
 			result = doCalculation(sentence, 3);
 		}
 
@@ -148,10 +163,9 @@ public class InputAnalyzer {
 				break;
 			case 1:
 				for (int i = 0; i < number.size(); i++) {
-					if(i == 0){
-					total = number.get(i);
-					}
-					else{
+					if (i == 0) {
+						total = number.get(i);
+					} else {
 						total *= number.get(i);
 					}
 				}
@@ -159,23 +173,21 @@ public class InputAnalyzer {
 				break;
 			case 2:
 				for (int i = 0; i < number.size(); i++) {
-					if(i == 0){
+					if (i == 0) {
 						total = number.get(i);
-						}
-						else{
-							total /= number.get(i);
-						}
+					} else {
+						total /= number.get(i);
+					}
 				}
 				result = "The result of the division is : " + total;
 				break;
 			case 3:
 				for (int i = 0; i < number.size(); i++) {
-					if(i == 0){
+					if (i == 0) {
 						total = number.get(i);
-						}
-						else{
-							total -= number.get(i);
-						}
+					} else {
+						total -= number.get(i);
+					}
 				}
 				result = "The result of the substraction is : " + total;
 				break;
@@ -190,59 +202,7 @@ public class InputAnalyzer {
 		return result;
 	}
 
-	/**
-	 * This method search a therm on the internet if the sentence speak about
-	 * searching something
-	 * 
-	 * @param sentence
-	 * @return
-	 */
-	private String search(String sentence) {
-		String result = null;
-		if(sentence.contains("search")){
-			int index = sentence.indexOf("search");
-			String search = sentence.substring(index+5);
-			result = googleSearch(search);
-		}
-		return result;
-	}
 	
-	private String googleSearch(String search){
-		String google = "http://www.google.com/search?q=";
-		String charset = "UTF-8";
-		String userAgent = "ExampleBot 1.0 (+http://example.com/bot)"; // Change this to your company's name and bot homepage!
-		String response = "";
-		Elements links;
-		try {
-			links = Jsoup.connect(google + URLEncoder.encode(search, charset)).userAgent(userAgent).get().select(".g>.r>a");
-		
-
-		for (Element link : links) {
-		    String title = link.text();
-		    String url = link.absUrl("href"); // Google returns URLs in format "http://www.google.com/url?q=<url>&sa=U&ei=<someKey>".
-		    url = URLDecoder.decode(url.substring(url.indexOf('=') + 1, url.indexOf('&')), "UTF-8");
-
-		    if (!url.startsWith("http")) {
-		        continue; // Ads/news/etc.
-		    }
-
-		    System.out.println("Title: " + title);
-		    System.out.println("URL: " + url);
-		    System.out.println("Does it answer your question? ");
-		    String confirmation = App.reader.nextLine();
-		    if (AnalyzerTools.checkPositiveAnswer(confirmation)) {
-		    	break;
-		    }
-		}
-		
-		} catch (UnsupportedEncodingException e) {
-			response = "sorry I didn't find anything relevant about this subject";
-		} catch (IOException e) {
-			response = "sorry I didn't find anything relevant about this subject";
-		}
-		
-		return response;
-	}
 
 	private String learningProcess() {
 		System.out.println("Is yes the answer?");
