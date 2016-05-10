@@ -1,0 +1,21 @@
+{
+  "type" : "record",
+  "name" : "QuestionAnswer",
+  "namespace" : "FirstAI.model",
+  "fields" : [ {
+    "name" : "subject",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "doc" : "Subject"
+  }, {
+    "name" : "question",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "doc" : "Question"
+  }, {
+   "name" : "answer",
+    "type" : [ "null", "string" ],
+    "default" : null,
+    "doc" : "Answer"
+  }]
+}
